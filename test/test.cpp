@@ -7,6 +7,7 @@
 struct TestSerialServerFixture
 {
 public:
+    // io_context must be on top to avoid any errors of it being passed into serialServer while no existing.
     boost::asio::io_context io_context;
 
     SerialPortInformation portInformation;
@@ -120,10 +121,10 @@ BOOST_FIXTURE_TEST_SUITE(test_modem, TestSerialServerFixture)
 
 BOOST_AUTO_TEST_CASE(test_CTS)
 {
-    Test_CTS_RTS_Pairing("Send RTS1!");
+    Test_CTS_RTS_Pairing("RTS1");
     std::cout << "Test 1 done!" << std::endl;
     
-    Test_CTS_RTS_Pairing("Send RTS0!");
+    Test_CTS_RTS_Pairing("RTS0");
     std::cout << "Test 2 done!" << std::endl;
 }
 
