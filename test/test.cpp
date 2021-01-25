@@ -128,3 +128,17 @@ BOOST_AUTO_TEST_CASE(test_CTS)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+int main(int argc, char* argv[])
+{
+    Log syslog("serial-echo-test", LOG_LOCAL0);
+
+    // attach std::clog to syslog
+    Attach_rdbuf attach( std::clog, &syslog );
+
+    // output to clog will appear in syslog
+    // output to cout will appear in stdout and syslog
+    Tee tee( std::cout, std::clog );
+
+    return boost::unit_test::unit_test_main(init_unit_test, argc, argv);
+}
