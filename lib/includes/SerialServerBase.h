@@ -11,7 +11,6 @@ protected:
 
     int fd;
     unsigned int modemStatus = 0;
-    unsigned int oldModemStatus = 0;
 
 public:
     SerialServerBase(boost::asio::io_context& io_context, SerialPortInformation& portInformation);

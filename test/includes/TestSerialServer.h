@@ -7,6 +7,7 @@ class TestSerialServer : public SerialServerBase
 {
 private:
     boost::asio::streambuf dataBuffer;
+    bool toggleRTS = true;
 
 public:
     TestSerialServer(boost::asio::io_context &io_context, SerialPortInformation &portInformation);

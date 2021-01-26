@@ -39,7 +39,6 @@ void AsyncSerialServer::manageRTS()
     
     if (this->modemStatus != 0)
     {   
-        this->oldModemStatus = this->modemStatus;
         setModemStatus(TIOCM_RTS, this->modemStatus & TIOCM_CTS);
     }
     else
