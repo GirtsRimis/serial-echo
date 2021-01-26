@@ -102,25 +102,6 @@ public:
     }
 };
 
-struct AllocateBuffers
-{
-    std::streambuf* const coutbuf = std::cout.rdbuf();
-    
-    AllocateBuffers()
-    {
-        std::clog.rdbuf(new Log("serial-echo-test", LOG_LOCAL0));
-        teebuf* tee = new teebuf(coutbuf, std::clog.rdbuf());
-
-        std::cout.rdbuf(tee);
-    }
-    ~AllocateBuffers()
-    {
-        std::cout.rdbuf(coutbuf);
-    }
-};
-
-BOOST_GLOBAL_FIXTURE(AllocateBuffers);
-
 BOOST_FIXTURE_TEST_SUITE(test_data_transfer, TestSerialServerFixture)
 
 BOOST_AUTO_TEST_CASE(test_less_than_buffer_size)
