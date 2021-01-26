@@ -37,16 +37,8 @@ void TestSerialServer::manageRTS()
     
     if (this->modemStatus != 0)
     {   
-        if (this->toggleRTS)
-        {
-            setModemStatus(TIOCM_RTS, 1);
-            this->toggleRTS = false;
-        }
-        else
-        {
-            setModemStatus(TIOCM_RTS, 0);
-            this->toggleRTS = true;
-        }
+        setModemStatus(TIOCM_RTS, this->toggleRTS);
+        this->toggleRTS =  !this->toggleRTS;
     }
     else
         if (this->portInformation.debugLevel == 1) 

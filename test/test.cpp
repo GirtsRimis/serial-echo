@@ -9,7 +9,7 @@
 struct TestSerialServerFixture
 {
 public:
-    // io_context must be on top to avoid any errors of it being passed into serialServer while no existing.
+    // io_context must be on top to avoid any errors of it being passed into serialServer while not existing.
     boost::asio::io_context io_context;
 
     SerialPortInformation portInformation;
@@ -49,7 +49,7 @@ public:
         BOOST_CHECK_EQUAL_COLLECTIONS(bufferData.begin(), bufferData.end(), testDataVector.begin(), testDataVector.end());
     }
 
-    void Test_CTS_RTS_Pairing(const char *testString)
+    void Test_CTS_RTS_Pairing_1(const char *testString)
     {
         std::cout << "Test_CTS_RTS_Pairing test" << std::endl;
 
@@ -71,6 +71,32 @@ public:
         modemSignals = this->serialServer.getModemSignals();
 
         BOOST_CHECK_EQUAL(modemSignals & TIOCM_CTS, TIOCM_CTS);
+
+        BOOST_CHECK_EQUAL_COLLECTIONS(bufferData.begin(), bufferData.end(), testDataVector.begin(), testDataVector.end());
+    }
+    
+    void Test_CTS_RTS_Pairing_0(const char *testString)
+    {
+        std::cout << "Test_CTS_RTS_Pairing test" << std::endl;
+
+        std::vector<char> bufferData, sendString, testDataVector;
+
+        int modemSignals = 0;
+        unsigned int testStringLenght = strlen(testString) + 1;
+        char endChar = testString[strlen(testString) - 1];
+
+        sendString.assign(testString, testString + testStringLenght);
+        makeVector(testDataVector, testString, testStringLenght);
+
+        this->serialServer.manageRTS();
+
+        this->serialServer.writeData(sendString);
+
+        this->serialServer.readData(endChar, bufferData);
+        
+        modemSignals = this->serialServer.getModemSignals();
+
+        BOOST_CHECK_EQUAL(modemSignals & TIOCM_CTS, 0);
 
         BOOST_CHECK_EQUAL_COLLECTIONS(bufferData.begin(), bufferData.end(), testDataVector.begin(), testDataVector.end());
     }
@@ -123,10 +149,10 @@ BOOST_FIXTURE_TEST_SUITE(test_modem, TestSerialServerFixture)
 
 BOOST_AUTO_TEST_CASE(test_CTS)
 {
-    Test_CTS_RTS_Pairing("RTS1");
+    Test_CTS_RTS_Pairing_1("RTS1");
     std::cout << "Test 1 done!" << std::endl;
     
-    Test_CTS_RTS_Pairing("RTS0");
+    Test_CTS_RTS_Pairing_0("RTS0");
     std::cout << "Test 2 done!" << std::endl;
 }
 
