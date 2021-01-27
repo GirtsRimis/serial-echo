@@ -5,7 +5,8 @@ AsyncSerialServer::AsyncSerialServer(boost::asio::io_context& io_context, Serial
 {
     if (this->portInformation.debugLevel == 1)
         std::cout << "AsyncSerialServer created!" << std::endl;
-        
+    
+    setModemStatus(TIOCM_RTS, 0);   
     startRead();
 }
 
