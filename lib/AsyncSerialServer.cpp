@@ -6,7 +6,8 @@ AsyncSerialServer::AsyncSerialServer(boost::asio::io_context& io_context, Serial
     if (this->portInformation.debugLevel == 1)
         std::cout << "AsyncSerialServer created!" << std::endl;
     
-    setModemStatus(TIOCM_RTS, 0);   
+    setModemStatus(TIOCM_RTS, 0);
+    setModemStatus(TIOCM_DTR, 0);
     startRead();
 }
 
@@ -26,7 +27,8 @@ void AsyncSerialServer::startRead()
 
 void AsyncSerialServer::startWrite(size_t length)
 {
-    manageRTS();
+    manageModemStatus(TIOCM_RTS, TIOCM_CTS);
+    manageModemStatus(TIOCM_DTR, TIOCM_DSR);
 
     boost::asio::async_write(this->serialPort, boost::asio::buffer(this->dataBuffer, length),
         boost::bind(&AsyncSerialServer::handleWrite, this,
@@ -34,17 +36,17 @@ void AsyncSerialServer::startWrite(size_t length)
         boost::asio::placeholders::bytes_transferred));
 }
 
-void AsyncSerialServer::manageRTS()
+void AsyncSerialServer::manageModemStatus(unsigned int signal, unsigned int recievedSignal)
 {
-    this->modemStatus = getModemSignals();
+    this->modemStatus = getModemStatus();
     
     if (this->modemStatus != 0)
     {   
-        setModemStatus(TIOCM_RTS, this->modemStatus & TIOCM_CTS);
+        setModemStatus(signal, this->modemStatus & recievedSignal);
     }
     else
         if (this->portInformation.debugLevel == 1)
-            std::cout << "Skipped RTS" << std::endl;
+            std::cout << "Skipped signal" << std::endl;
 }
 
 void AsyncSerialServer::handleRead(const boost::system::error_code& error, size_t length)

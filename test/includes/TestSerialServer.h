@@ -7,7 +7,7 @@ class TestSerialServer : public SerialServerBase
 {
 private:
     boost::asio::streambuf dataBuffer;
-    bool toggleRTS = true;
+    bool toggleSignal = true;
 
 public:
     TestSerialServer(boost::asio::io_context &io_context, SerialPortInformation &portInformation);
@@ -15,7 +15,7 @@ public:
 
     void readData(char endChar, std::vector<char> &inputVector);
     void writeData(std::vector<char> &sendString);
-    void manageRTS() override;
+    void manageModemStatus(unsigned int signal) override;
 
     void getBufferData(std::vector<char> &inputVector);
 };

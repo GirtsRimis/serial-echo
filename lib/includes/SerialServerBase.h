@@ -20,8 +20,8 @@ public:
     void setupPort(boost::asio::serial_port& serialPort, unsigned long baudRate);
 
     void setModemStatus(unsigned int signal, bool value);
-    int getModemSignals();
-    virtual void manageRTS() {}
+    int getModemStatus();
+    virtual void manageModemStatus(unsigned int signal) {}
 
     boost::asio::serial_port getSerialPort() const;
 };

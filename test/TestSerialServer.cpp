@@ -31,18 +31,18 @@ void TestSerialServer::writeData(std::vector<char> &sendString)
     if (error) throw error;
 }
 
-void TestSerialServer::manageRTS()
+void TestSerialServer::manageModemStatus(unsigned int signal)
 {
-    this->modemStatus = getModemSignals();
+    this->modemStatus = getModemStatus();
     
     if (this->modemStatus != 0)
     {   
-        setModemStatus(TIOCM_RTS, this->toggleRTS);
-        this->toggleRTS =  !this->toggleRTS;
+        setModemStatus(signal, this->toggleSignal);
+        this->toggleSignal =  !this->toggleSignal;
     }
     else
         if (this->portInformation.debugLevel == 1) 
-            std::cout << "Skipped RTS" << std::endl;
+            std::cout << "Skipped signal" << std::endl;
 }
 
 void TestSerialServer::getBufferData(std::vector<char> &inputVector)

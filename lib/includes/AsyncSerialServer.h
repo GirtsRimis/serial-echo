@@ -21,7 +21,7 @@ public:
     void startRead();
     void startWrite(size_t length);
 
-    void manageRTS() override;
+    void manageModemStatus(unsigned int signal, unsigned int recievedSignal);
 
     void handleRead(const boost::system::error_code& error, size_t length);
     void handleWrite(const boost::system::error_code& error, size_t length);

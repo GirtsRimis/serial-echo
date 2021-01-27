@@ -49,9 +49,9 @@ public:
         BOOST_CHECK_EQUAL_COLLECTIONS(bufferData.begin(), bufferData.end(), testDataVector.begin(), testDataVector.end());
     }
 
-    void Test_CTS_RTS_Pairing(const char *testString, unsigned int CTS_Value)
+    void Test_Modem_Pairing(const char *testString, unsigned int signal, unsigned int recieveSignal, unsigned int expectedValue)
     {
-        std::cout << "Test_CTS_RTS_Pairing test" << std::endl;
+        std::cout << "Test_Modem_Pairing test" << std::endl;
 
         std::vector<char> bufferData, sendString, testDataVector;
 
@@ -62,15 +62,15 @@ public:
         sendString.assign(testString, testString + testStringLenght);
         makeVector(testDataVector, testString, testStringLenght);
 
-        this->serialServer.manageRTS();
+        this->serialServer.manageModemStatus(signal);
 
         this->serialServer.writeData(sendString);
 
         this->serialServer.readData(endChar, bufferData);
         
-        modemSignals = this->serialServer.getModemSignals();
+        modemSignals = this->serialServer.getModemStatus();
 
-        BOOST_CHECK_EQUAL(modemSignals & TIOCM_CTS, CTS_Value);
+        BOOST_CHECK_EQUAL(modemSignals & recieveSignal, expectedValue);
 
         BOOST_CHECK_EQUAL_COLLECTIONS(bufferData.begin(), bufferData.end(), testDataVector.begin(), testDataVector.end());
     }
@@ -104,10 +104,18 @@ BOOST_FIXTURE_TEST_SUITE(test_modem, TestSerialServerFixture)
 
 BOOST_AUTO_TEST_CASE(test_CTS)
 {
-    Test_CTS_RTS_Pairing("RTS1", TIOCM_CTS);
-    Test_CTS_RTS_Pairing("RTS0", 0);
-    Test_CTS_RTS_Pairing("RTS1", TIOCM_CTS);
-    Test_CTS_RTS_Pairing("RTS0", 0);
+    Test_Modem_Pairing("RTS1", TIOCM_RTS, TIOCM_CTS, TIOCM_CTS);
+    Test_Modem_Pairing("RTS0", TIOCM_RTS, TIOCM_CTS, 0);
+    Test_Modem_Pairing("RTS1", TIOCM_RTS, TIOCM_CTS, TIOCM_CTS);
+    Test_Modem_Pairing("RTS0", TIOCM_RTS, TIOCM_CTS, 0);
+}
+
+BOOST_AUTO_TEST_CASE(test_DSR)
+{
+    Test_Modem_Pairing("DTR1", TIOCM_DTR, TIOCM_DSR, TIOCM_DSR);
+    Test_Modem_Pairing("DTR0", TIOCM_DTR, TIOCM_DSR, 0);
+    Test_Modem_Pairing("DTR1", TIOCM_DTR, TIOCM_DSR, TIOCM_DSR);
+    Test_Modem_Pairing("DTR0", TIOCM_DTR, TIOCM_DSR, 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

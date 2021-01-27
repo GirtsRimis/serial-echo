@@ -39,7 +39,7 @@ void SerialServerBase::setModemStatus(unsigned int signal, bool value)
         std::cout << (value ? (signalType + " set!") : (signalType + " cleared!")) << std::endl;
 }
 
-int SerialServerBase::getModemSignals()
+int SerialServerBase::getModemStatus()
 {
     int modemData = 0;
     int returnCode = ioctl(this->fd, TIOCMGET, &modemData);
