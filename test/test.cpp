@@ -53,27 +53,41 @@ public:
     {
         std::cout << "Test_Modem_Pairing test" << std::endl;
 
-        // std::vector<char> bufferData, sendString, testDataVector;
+        std::vector<char> bufferData, sendString, testDataVector;
 
         int modemSignals = 0;
-        // unsigned int testStringLenght = strlen(testString) + 1;
-        // char endChar = testString[strlen(testString) - 1];
+        unsigned int testStringLenght = strlen(testString) + 1;
+        char endChar = testString[strlen(testString) - 1];
 
-        // sendString.assign(testString, testString + testStringLenght);
-        // makeVector(testDataVector, testString, testStringLenght);
+        sendString.assign(testString, testString + testStringLenght);
+        makeVector(testDataVector, testString, testStringLenght);
 
         this->serialServer.manageModemStatus(signal);
 
-        // this->serialServer.writeData(sendString);
+        this->serialServer.writeData(sendString);
 
-        // this->serialServer.readData(endChar, bufferData);
-        sleep(1);
+        this->serialServer.readData(endChar, bufferData);
         
         modemSignals = this->serialServer.getModemStatus();
 
         BOOST_CHECK_EQUAL(modemSignals & recieveSignal, expectedValue);
 
-        // BOOST_CHECK_EQUAL_COLLECTIONS(bufferData.begin(), bufferData.end(), testDataVector.begin(), testDataVector.end());
+        BOOST_CHECK_EQUAL_COLLECTIONS(bufferData.begin(), bufferData.end(), testDataVector.begin(), testDataVector.end());
+    }
+
+    void Test_Modem_Pairing_No_Data(unsigned int signal, unsigned int recieveSignal, unsigned int expectedValue)
+    {
+        std::cout << "Test_Modem_Pairing test" << std::endl;
+
+        int modemSignals = 0;
+
+        this->serialServer.manageModemStatus(signal);
+
+        sleep(1);
+        
+        modemSignals = this->serialServer.getModemStatus();
+
+        BOOST_CHECK_EQUAL(modemSignals & recieveSignal, expectedValue);
     }
 };
 
@@ -103,7 +117,7 @@ BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_FIXTURE_TEST_SUITE(test_modem, TestSerialServerFixture)
 
-BOOST_AUTO_TEST_CASE(test_CTS)
+BOOST_AUTO_TEST_CASE(test_CTS_with_data)
 {
     Test_Modem_Pairing("RTS1", TIOCM_RTS, TIOCM_CTS, TIOCM_CTS);
     Test_Modem_Pairing("RTS0", TIOCM_RTS, TIOCM_CTS, 0);
@@ -111,12 +125,28 @@ BOOST_AUTO_TEST_CASE(test_CTS)
     Test_Modem_Pairing("RTS0", TIOCM_RTS, TIOCM_CTS, 0);
 }
 
-BOOST_AUTO_TEST_CASE(test_DSR)
+BOOST_AUTO_TEST_CASE(test_DSR_with_data)
 {
     Test_Modem_Pairing("DTR1", TIOCM_DTR, TIOCM_DSR, TIOCM_DSR);
     Test_Modem_Pairing("DTR0", TIOCM_DTR, TIOCM_DSR, 0);
     Test_Modem_Pairing("DTR1", TIOCM_DTR, TIOCM_DSR, TIOCM_DSR);
     Test_Modem_Pairing("DTR0", TIOCM_DTR, TIOCM_DSR, 0);
+}
+
+BOOST_AUTO_TEST_CASE(test_CTS_with_no_data)
+{
+    Test_Modem_Pairing_No_Data(TIOCM_RTS, TIOCM_CTS, TIOCM_CTS);
+    Test_Modem_Pairing_No_Data(TIOCM_RTS, TIOCM_CTS, 0);
+    Test_Modem_Pairing_No_Data(TIOCM_RTS, TIOCM_CTS, TIOCM_CTS);
+    Test_Modem_Pairing_No_Data(TIOCM_RTS, TIOCM_CTS, 0);
+}
+
+BOOST_AUTO_TEST_CASE(test_DSR_with_no_data)
+{
+    Test_Modem_Pairing_No_Data(TIOCM_DTR, TIOCM_DSR, TIOCM_DSR);
+    Test_Modem_Pairing_No_Data(TIOCM_DTR, TIOCM_DSR, 0);
+    Test_Modem_Pairing_No_Data(TIOCM_DTR, TIOCM_DSR, TIOCM_DSR);
+    Test_Modem_Pairing_No_Data(TIOCM_DTR, TIOCM_DSR, 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
