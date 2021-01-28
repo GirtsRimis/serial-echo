@@ -53,26 +53,27 @@ public:
     {
         std::cout << "Test_Modem_Pairing test" << std::endl;
 
-        std::vector<char> bufferData, sendString, testDataVector;
+        // std::vector<char> bufferData, sendString, testDataVector;
 
         int modemSignals = 0;
-        unsigned int testStringLenght = strlen(testString) + 1;
-        char endChar = testString[strlen(testString) - 1];
+        // unsigned int testStringLenght = strlen(testString) + 1;
+        // char endChar = testString[strlen(testString) - 1];
 
-        sendString.assign(testString, testString + testStringLenght);
-        makeVector(testDataVector, testString, testStringLenght);
+        // sendString.assign(testString, testString + testStringLenght);
+        // makeVector(testDataVector, testString, testStringLenght);
 
         this->serialServer.manageModemStatus(signal);
 
-        this->serialServer.writeData(sendString);
+        // this->serialServer.writeData(sendString);
 
-        this->serialServer.readData(endChar, bufferData);
+        // this->serialServer.readData(endChar, bufferData);
+        sleep(1);
         
         modemSignals = this->serialServer.getModemStatus();
 
         BOOST_CHECK_EQUAL(modemSignals & recieveSignal, expectedValue);
 
-        BOOST_CHECK_EQUAL_COLLECTIONS(bufferData.begin(), bufferData.end(), testDataVector.begin(), testDataVector.end());
+        // BOOST_CHECK_EQUAL_COLLECTIONS(bufferData.begin(), bufferData.end(), testDataVector.begin(), testDataVector.end());
     }
 };
 

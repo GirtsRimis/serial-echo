@@ -24,7 +24,6 @@ void TestSerialServer::readData(char endChar, std::vector<char> &inputVector)
 
 void TestSerialServer::writeData(std::vector<char> &sendString)
 {
-   
     boost::system::error_code error;
     boost::asio::write(this->serialPort, boost::asio::buffer(sendString, sendString.size()), error);
     

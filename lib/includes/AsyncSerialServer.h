@@ -27,4 +27,6 @@ public:
     void handleWrite(const boost::system::error_code& error, size_t length);
 
     void printInformation(const char* messageType, const boost::system::error_code& error, size_t length);
+
+    void modemStatusManegmentThread() override;
 };

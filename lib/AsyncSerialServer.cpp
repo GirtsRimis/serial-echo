@@ -5,9 +5,9 @@ AsyncSerialServer::AsyncSerialServer(boost::asio::io_context& io_context, Serial
 {
     if (this->portInformation.debugLevel == 1)
         std::cout << "AsyncSerialServer created!" << std::endl;
-    
-    setModemStatus(TIOCM_RTS, 0);
-    setModemStatus(TIOCM_DTR, 0);
+
+    this->modemStatusManagmentWorkerThread = boost::thread(boost::bind(&AsyncSerialServer::modemStatusManegmentThread, this));
+
     startRead();
 }
 
@@ -15,6 +15,8 @@ AsyncSerialServer::~AsyncSerialServer()
 {
     if (this->portInformation.debugLevel == 1)
         std::cout << "AsyncSerialServer destroyed!" << std::endl;
+
+    this->modemStatusManagmentWorkerThread.join();
 }
 
 void AsyncSerialServer::startRead()
@@ -27,10 +29,7 @@ void AsyncSerialServer::startRead()
 
 void AsyncSerialServer::startWrite(size_t length)
 {
-    manageModemStatus(TIOCM_RTS, TIOCM_CTS);
-    manageModemStatus(TIOCM_DTR, TIOCM_DSR);
-
-    boost::asio::async_write(this->serialPort, boost::asio::buffer(this->dataBuffer, length),
+     boost::asio::async_write(this->serialPort, boost::asio::buffer(this->dataBuffer, length),
         boost::bind(&AsyncSerialServer::handleWrite, this,
         boost::asio::placeholders::error,
         boost::asio::placeholders::bytes_transferred));
@@ -129,5 +128,17 @@ void AsyncSerialServer::printInformation(const char* messageType, const boost::s
         std::cerr << "[Error]: Handle " << messageType << "! | " << "Error: " << error << 
             " | modemData length: " << length << " - Must be " << BUFFER_SIZE << " bytes!" << std::endl;
         throw error;
+    }
+}
+
+void AsyncSerialServer::modemStatusManegmentThread()
+{
+    setModemStatus(TIOCM_RTS, 0);
+    setModemStatus(TIOCM_DTR, 0);
+
+    while (1)
+    {
+        manageModemStatus(TIOCM_RTS, TIOCM_CTS);
+        manageModemStatus(TIOCM_DTR, TIOCM_DSR);
     }
 }

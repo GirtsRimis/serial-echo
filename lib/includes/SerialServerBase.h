@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/asio.hpp>
+#include <boost/thread.hpp>
 #include "SerialPortInformation.h"
 
 class SerialServerBase
@@ -8,6 +9,8 @@ class SerialServerBase
 protected:
     SerialPortInformation& portInformation;
     boost::asio::serial_port serialPort;
+
+    boost::thread modemStatusManagmentWorkerThread;
 
     int fd;
     unsigned int modemStatus = 0;
@@ -23,5 +26,5 @@ public:
     int getModemStatus();
     virtual void manageModemStatus(unsigned int signal) {}
 
-    boost::asio::serial_port getSerialPort() const;
+    virtual void modemStatusManegmentThread() {}
 };
