@@ -49,7 +49,7 @@ public:
         BOOST_CHECK_EQUAL_COLLECTIONS(bufferData.begin(), bufferData.end(), testDataVector.begin(), testDataVector.end());
     }
 
-    void Test_Modem_Pairing(const char *testString, unsigned int signal, unsigned int recieveSignal, unsigned int expectedValue)
+    void Test_Modem_Pairing(const char *testString, unsigned int sendSignal, unsigned int recieveSignal, unsigned int expectedTestValue)
     {
         std::cout << "Test_Modem_Pairing test" << std::endl;
 
@@ -62,7 +62,7 @@ public:
         sendString.assign(testString, testString + testStringLenght);
         makeVector(testDataVector, testString, testStringLenght);
 
-        this->serialServer.manageModemStatus(signal);
+        this->serialServer.manageModemStatus(sendSignal);
 
         this->serialServer.writeData(sendString);
 
@@ -70,24 +70,24 @@ public:
         
         modemSignals = this->serialServer.getModemStatus();
 
-        BOOST_CHECK_EQUAL(modemSignals & recieveSignal, expectedValue);
+        BOOST_CHECK_EQUAL(modemSignals & recieveSignal, expectedTestValue);
 
         BOOST_CHECK_EQUAL_COLLECTIONS(bufferData.begin(), bufferData.end(), testDataVector.begin(), testDataVector.end());
     }
 
-    void Test_Modem_Pairing_No_Data(unsigned int signal, unsigned int recieveSignal, unsigned int expectedValue)
+    void Test_Modem_Pairing_No_Data(unsigned int sendSignal, unsigned int recieveSignal, unsigned int expectedTestValue)
     {
         std::cout << "Test_Modem_Pairing test" << std::endl;
 
         int modemSignals = 0;
 
-        this->serialServer.manageModemStatus(signal);
+        this->serialServer.manageModemStatus(sendSignal);
 
         sleep(1);
-        
+
         modemSignals = this->serialServer.getModemStatus();
 
-        BOOST_CHECK_EQUAL(modemSignals & recieveSignal, expectedValue);
+        BOOST_CHECK_EQUAL(modemSignals & recieveSignal, expectedTestValue);
     }
 };
 

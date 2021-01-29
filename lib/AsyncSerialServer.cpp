@@ -5,9 +5,16 @@ AsyncSerialServer::AsyncSerialServer(boost::asio::io_context& io_context, Serial
 {
     if (this->portInformation.debugLevel == 1)
         std::cout << "AsyncSerialServer created!" << std::endl;
-
-    this->modemStatusManagmentWorkerThread = boost::thread(boost::bind(&AsyncSerialServer::modemStatusManagementThread, this));
-
+    
+    try
+    {
+        this->modemStatusManagmentWorkerThread = boost::thread(boost::bind(&AsyncSerialServer::modemStatusManagementThread, this));
+    }
+    catch(const boost::system::system_error& e)
+    {
+        std::cerr << "[ERROR]: " << e.what() << ": " << e.code() << " - " << e.code().message() << std::endl;
+    }
+    
     startRead();
 }
 
@@ -17,6 +24,9 @@ AsyncSerialServer::~AsyncSerialServer()
         std::cout << "AsyncSerialServer destroyed!" << std::endl;
 
     this->modemStatusManagmentWorkerThread.join();
+    
+    if (this->portInformation.debugLevel == 1)
+        std::cout << "Thread joined!" << std::endl;
 }
 
 void AsyncSerialServer::startRead()
@@ -29,7 +39,7 @@ void AsyncSerialServer::startRead()
 
 void AsyncSerialServer::startWrite(size_t length)
 {
-     boost::asio::async_write(this->serialPort, boost::asio::buffer(this->dataBuffer, length),
+    boost::asio::async_write(this->serialPort, boost::asio::buffer(this->dataBuffer, length),
         boost::bind(&AsyncSerialServer::handleWrite, this,
         boost::asio::placeholders::error,
         boost::asio::placeholders::bytes_transferred));

@@ -52,3 +52,8 @@ int SerialServerBase::getModemStatus()
 
     return modemData;
 }
+
+int SerialServerBase::getPortFD() const
+{
+    return this->fd;
+}

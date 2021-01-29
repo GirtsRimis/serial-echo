@@ -26,5 +26,7 @@ public:
     int getModemStatus();
     virtual void manageModemStatus(unsigned int signal) {}
 
+    int getPortFD() const;
+
     virtual void modemStatusManagementThread() {}
 };
