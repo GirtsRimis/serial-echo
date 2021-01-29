@@ -6,14 +6,7 @@ AsyncSerialServer::AsyncSerialServer(boost::asio::io_context& io_context, Serial
     if (this->portInformation.debugLevel == 1)
         std::cout << "AsyncSerialServer created!" << std::endl;
     
-    try
-    {
-        this->modemStatusManagmentWorkerThread = boost::thread(boost::bind(&AsyncSerialServer::modemStatusManagementThread, this));
-    }
-    catch(const boost::system::system_error& e)
-    {
-        std::cerr << "[ERROR]: " << e.what() << ": " << e.code() << " - " << e.code().message() << std::endl;
-    }
+    this->modemStatusManagmentWorkerThread = boost::thread(boost::bind(&AsyncSerialServer::modemStatusManagementThread, this));
     
     startRead();
 }
@@ -21,12 +14,23 @@ AsyncSerialServer::AsyncSerialServer(boost::asio::io_context& io_context, Serial
 AsyncSerialServer::~AsyncSerialServer()
 {
     if (this->portInformation.debugLevel == 1)
-        std::cout << "AsyncSerialServer destroyed!" << std::endl;
+        std::cout << "Closing serialPort!" << std::endl;
+    
+    this->serialPort.close();
+
+    if (this->portInformation.debugLevel == 1)
+        std::cout << "Closed serialPort!" << std::endl;
+
+    if (this->portInformation.debugLevel == 1)
+        std::cout << "Joining Thread!" << std::endl;
 
     this->modemStatusManagmentWorkerThread.join();
     
     if (this->portInformation.debugLevel == 1)
         std::cout << "Thread joined!" << std::endl;
+
+    if (this->portInformation.debugLevel == 1)
+        std::cout << "AsyncSerialServer destroyed!" << std::endl;
 }
 
 void AsyncSerialServer::startRead()
@@ -143,28 +147,35 @@ void AsyncSerialServer::printInformation(const char* messageType, const boost::s
 
 void AsyncSerialServer::modemStatusManagementThread()
 {
-    if (this->portInformation.debugLevel == 1)
-        std::cout << "Thread started" << std::endl;
-
-    setModemStatus(TIOCM_RTS, 0);
-    setModemStatus(TIOCM_DTR, 0);
-
-    int returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_CTS|TIOCM_DSR );
-
-    if (returnCode < 0)
-        throw boost::system::system_error(returnCode, boost::system::system_category(), "Failed to TIOCMIWAIT");
-
-    while (returnCode >= 0)
+    try
     {
-        manageModemStatus(TIOCM_RTS, TIOCM_CTS);
-        manageModemStatus(TIOCM_DTR, TIOCM_DSR);
+        if (this->portInformation.debugLevel == 1)
+            std::cout << "Thread started" << std::endl;
 
-        returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_CTS|TIOCM_DSR );
+        setModemStatus(TIOCM_RTS, 0);
+        setModemStatus(TIOCM_DTR, 0);
+
+        int returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_CTS|TIOCM_DSR );
 
         if (returnCode < 0)
             throw boost::system::system_error(returnCode, boost::system::system_category(), "Failed to TIOCMIWAIT");
-    }
 
-    if (this->portInformation.debugLevel == 1)
-        std::cout << "Thread finished" << std::endl;
+        while (returnCode >= 0)
+        {
+            manageModemStatus(TIOCM_RTS, TIOCM_CTS);
+            manageModemStatus(TIOCM_DTR, TIOCM_DSR);
+
+            returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_CTS|TIOCM_DSR );
+
+            if (returnCode < 0)
+                throw boost::system::system_error(returnCode, boost::system::system_category(), "Failed to TIOCMIWAIT");
+        }
+
+        if (this->portInformation.debugLevel == 1)
+            std::cout << "Thread finished" << std::endl;
+    }
+    catch(const boost::system::system_error& e)
+    {
+        std::cerr << "[ERROR]: " << e.what() << ": " << e.code() << " - " << e.code().message() << std::endl;
+    }
 }

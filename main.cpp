@@ -1,22 +1,8 @@
-#include <signal.h>
-
 #include "Logger.h"
 #include "AsyncSerialServer.h"
 
-volatile sig_atomic_t done = 0;
-
-void term(int signum)
-{
-    done = 1;
-}
-
 int main(int argc, char* argv[])
 {
-    // struct sigaction action;
-    // memset(&action, 0, sizeof(struct sigaction));
-    // action.sa_handler = term;
-    // sigaction(SIGTERM, &action, NULL);
-
     Log syslog("serial-echo", LOG_LOCAL0);
 
     // attach std::clog to syslog
@@ -40,12 +26,14 @@ int main(int argc, char* argv[])
         AsyncSerialServer serialPort(io_context, portInformation);
         io_context.run();
 
-        std::cout << "Closing port" << std::endl;
+        std::cout << "Exiting try catch in main!" << std::endl;
     }
     catch(const boost::system::system_error& e)
     {
         std::cerr << "[ERROR]: " << e.what() << ": " << e.code() << " - " << e.code().message() << std::endl;
     }
+
+    std::cout << "Closing app" << std::endl;
 
     return 0;
 }
