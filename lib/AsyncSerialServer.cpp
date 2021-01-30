@@ -22,12 +22,12 @@ AsyncSerialServer::~AsyncSerialServer()
         std::cout << "Closed serialPort!" << std::endl;
 
     if (this->portInformation.debugLevel == 1)
-        std::cout << "Joining Thread!" << std::endl;
+        std::cout << "Killing Thread!" << std::endl;
 
-    this->modemStatusManagmentWorkerThread.join();
+    pthread_kill(this->modemStatusManagmentWorkerThread.native_handle(), SIGTERM);
     
     if (this->portInformation.debugLevel == 1)
-        std::cout << "Thread joined!" << std::endl;
+        std::cout << "Thread killed!" << std::endl;
 
     if (this->portInformation.debugLevel == 1)
         std::cout << "AsyncSerialServer destroyed!" << std::endl;

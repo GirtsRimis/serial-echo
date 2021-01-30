@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
         std::cerr << "[ERROR]: " << e.what() << ": " << e.code() << " - " << e.code().message() << std::endl;
     }
 
-    std::cout << "Closing app" << std::endl;
+    std::cout << "Closing serial-echo!" << std::endl;
 
     return 0;
 }
