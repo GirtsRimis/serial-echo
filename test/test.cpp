@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(test_less_than_buffer_size)
 
 BOOST_AUTO_TEST_CASE(test_more_than_buffer_size)
 {
-    CompareEcho("test_connection$");
+    CompareEcho("test_connectio$");
 }
 
 BOOST_AUTO_TEST_CASE(test_null)
