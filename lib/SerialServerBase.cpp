@@ -1,3 +1,4 @@
+#include <iostream>
 #include "SerialServerBase.h"
 
 SerialServerBase::SerialServerBase(boost::asio::io_context& io_context, SerialPortInformation& portInformation)
@@ -30,7 +31,7 @@ void SerialServerBase::setModemStatus(unsigned int signal, bool value)
 {
     int returnCode = ioctl(this->fd, value ? TIOCMBIS : TIOCMBIC, &signal);
 
-    std::string signalType = modemStatusToString(signal);
+    std::string signalType = modemStatusBitsToString(signal,false);
 
     if (returnCode < 0)
         throw boost::system::system_error(returnCode, boost::system::system_category(), (signalType + " couldn\'t be set/cleared"));
@@ -48,7 +49,7 @@ int SerialServerBase::getModemStatus()
         throw boost::system::system_error(returnCode, boost::system::system_category(), "Failed to TIOCMGET");
 
     if (this->portInformation.debugLevel == 1)
-        std::cout << "ModemData: " << std::hex << (modemData) << std::dec << modemDataTypesToString(modemData) << std::endl;
+        std::cout << "ModemData: " << modemStatusBitsToString(modemData,true) << std::endl;
 
     return modemData;
 }

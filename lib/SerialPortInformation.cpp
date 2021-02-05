@@ -1,3 +1,4 @@
+#include <iostream>
 #include "SerialPortInformation.h"
 
 SerialPortInformation::SerialPortInformation(int argc, char *argv[])

@@ -1,3 +1,4 @@
+#include <iostream>
 #include "AsyncSerialServer.h"
 
 AsyncSerialServer::AsyncSerialServer(boost::asio::io_context& io_context, SerialPortInformation& portInformation)
