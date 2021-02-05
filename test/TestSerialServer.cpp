@@ -1,3 +1,4 @@
+#include <iostream>
 #include "TestSerialServer.h"
 
 TestSerialServer::TestSerialServer(boost::asio::io_context &io_context, SerialPortInformation &portInformation)
