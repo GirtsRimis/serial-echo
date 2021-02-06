@@ -153,11 +153,11 @@ void AsyncSerialServer::modemStatusManagementThread()
         if (this->portInformation.debugLevel == 1)
             std::cout << "Thread started" << std::endl;
 
-        // setModemStatus(TIOCM_RTS, 0);
+        setModemStatus(TIOCM_RTS, 0);
         setModemStatus(TIOCM_DTR, 0);
 
-        // int returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_CTS|TIOCM_DSR );
-        int returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_DSR );
+        int returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_CTS|TIOCM_DSR );
+        // int returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_DSR );
         // int returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_CTS );
 
         if (returnCode < 0)
@@ -166,11 +166,11 @@ void AsyncSerialServer::modemStatusManagementThread()
         while (returnCode >= 0)
         {
             // manageModemStatus(TIOCM_RTS|TIOCM_DTR, TIOCM_CTS|TIOCM_DSR);
-            // manageModemStatus(TIOCM_RTS, TIOCM_CTS);
+            manageModemStatus(TIOCM_RTS, TIOCM_CTS);
             manageModemStatus(TIOCM_DTR, TIOCM_DSR);
 
-            // returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_CTS|TIOCM_DSR );
-            returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_DSR );
+            returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_CTS|TIOCM_DSR );
+            // returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_DSR );
             // returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_CTS );
 
             if (returnCode < 0)
