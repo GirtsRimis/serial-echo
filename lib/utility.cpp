@@ -6,17 +6,20 @@
 
 #define countof(x) sizeof(x) / sizeof(x[0])
 #define stringize(X) #X
-#define ITEM(X) std::make_pair(TIOCM_##X,stringize(X))
+#define ITEM(X) make_pair(TIOCM_##X,stringize(X))
 
-void makeVector(std::vector<char> &inputVector, const char *data, std::size_t size)
+using namespace std;
+
+void makeVector(vector<char> &inputVector, const char *data, size_t size)
 {
-    std::vector<char> createVector;
+    vector<char> createVector;
     inputVector.assign(data, data + size);
 }
 
-std::string modemStatusBitsToString(unsigned int data, bool add_hex)
+using namespace OutputBitsFormat;
+string modemStatusBitsToString(unsigned int data, uint8_t options)
 {
-    typedef std::pair<unsigned int, const char *> pair_t;
+    typedef pair<unsigned int, const char *> pair_t;
     const pair_t pairs[] = {
           ITEM(DTR)
         , ITEM(RTS)
@@ -24,22 +27,26 @@ std::string modemStatusBitsToString(unsigned int data, bool add_hex)
         , ITEM(CAR)
         , ITEM(DSR)
     };
-    std::ostringstream ostr;
-    if( add_hex )
-        ostr << std::hex << data;
-    if( data || !add_hex ) {
+    const bool show_empty = true;
+    ostringstream ostr;
+    if( options & eShowHex )
+        ostr << "0x" << setfill('0') << setw(4) << hex << data;
+    if( data || !(options & eShowHex) ) {
         ostr << " (";
         bool at_least_one = false;
-	    for(size_t i = 0; i < countof(pairs); ++i) {
-            if( data & pairs[i].first ) {
-                if( at_least_one )
+        for(size_t i = 0; i < countof(pairs); ++i) {
+            bool bit_set = data & pairs[i].first;
+            if( bit_set || (options & eShowZeroBits) ) {
+                if( at_least_one ) {
                     ostr << '|';
+                    if( i == 2 ) // separate output from input
+                        ostr << '|';
+                }
                 at_least_one = true;
-                ostr << pairs[i].second;
+                ostr << (bit_set ? pairs[i].second : EMPTY);
             }
-	    }
+        }
         ostr << ") ";
     }
-	return ostr.str();
+    return ostr.str();
 }
-
