@@ -150,28 +150,20 @@ void AsyncSerialServer::modemStatusManagementThread()
 {
     try
     {
+        int returnCode = 0;
+
         if (this->portInformation.debugLevel == 1)
             std::cout << "Thread started" << std::endl;
 
-        setModemStatus(TIOCM_RTS, 0);
-        setModemStatus(TIOCM_DTR, 0);
-
-        int returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_CTS|TIOCM_DSR );
-        // int returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_DSR );
-        // int returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_CTS );
-
-        if (returnCode < 0)
-            throw boost::system::system_error(returnCode, boost::system::system_category(), "Failed to TIOCMIWAIT");
+        manageModemStatus(TIOCM_RTS|TIOCM_DTR, 0);
 
         while (returnCode >= 0)
         {
-            // manageModemStatus(TIOCM_RTS|TIOCM_DTR, TIOCM_CTS|TIOCM_DSR);
-            manageModemStatus(TIOCM_RTS, TIOCM_CTS);
-            manageModemStatus(TIOCM_DTR, TIOCM_DSR);
-
             returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_CTS|TIOCM_DSR );
-            // returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_DSR );
-            // returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_CTS );
+
+            std::cout << "Change pin" << std::endl;
+
+            manageModemStatus(TIOCM_RTS|TIOCM_DTR, TIOCM_CTS|TIOCM_DSR);
 
             if (returnCode < 0)
                 throw boost::system::system_error(returnCode, boost::system::system_category(), "Failed to TIOCMIWAIT");
