@@ -7,7 +7,7 @@ SerialServerBase::SerialServerBase(boost::asio::io_context& io_context, SerialPo
 {
     if (this->portInformation.debugLevel == 1)
         std::cout << "SerialServerBase created!" << std::endl;
-        
+
     setupPort(this->serialPort, this->portInformation.baudRate);
 }
 
@@ -31,25 +31,27 @@ void SerialServerBase::setModemStatus(unsigned int signal, bool value)
 {
     int returnCode = ioctl(this->fd, value ? TIOCMBIS : TIOCMBIC, &signal);
 
-    std::string signalType = modemStatusBitsToString(signal,false);
+    std::string signalType = modemStatusBitsToString(signal);
+
+    std::string action = value ? (" ("+OutputBitsFormat::EMPTY+") ->"+signalType) : (signalType+"-> ("+OutputBitsFormat::EMPTY+")");
 
     if (returnCode < 0)
-        throw boost::system::system_error(returnCode, boost::system::system_category(), (signalType + " couldn\'t be set/cleared"));
+        throw boost::system::system_error(returnCode, boost::system::system_category(), action + " couldn\'t be applied");
 
     if (this->portInformation.debugLevel == 1)
-        std::cout << (value ? (signalType + " set!") : (signalType + " cleared!")) << std::endl;
+        std::cout << "ModemStatus SET: " << action << std::endl;
 }
 
 int SerialServerBase::getModemStatus()
 {
     int modemData = 0;
     int returnCode = ioctl(this->fd, TIOCMGET, &modemData);
-    
+
     if (returnCode < 0)
         throw boost::system::system_error(returnCode, boost::system::system_category(), "Failed to TIOCMGET");
 
     if (this->portInformation.debugLevel == 1)
-        std::cout << "ModemData: " << modemStatusBitsToString(modemData,true) << std::endl;
+        std::cout << "ModemStatus CUR: " << modemStatusBitsToString(modemData,OutputBitsFormat::eShowHex|OutputBitsFormat::eShowZeroBits) << std::endl;
 
     return modemData;
 }

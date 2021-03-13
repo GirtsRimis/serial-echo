@@ -6,9 +6,9 @@ AsyncSerialServer::AsyncSerialServer(boost::asio::io_context& io_context, Serial
 {
     if (this->portInformation.debugLevel == 1)
         std::cout << "AsyncSerialServer created!" << std::endl;
-    
+
     this->modemStatusManagmentWorkerThread = boost::thread(boost::bind(&AsyncSerialServer::modemStatusManagementThread, this));
-    
+
     startRead();
 }
 
@@ -16,7 +16,7 @@ AsyncSerialServer::~AsyncSerialServer()
 {
     if (this->portInformation.debugLevel == 1)
         std::cout << "Closing serialPort!" << std::endl;
-    
+
     this->serialPort.close();
 
     if (this->portInformation.debugLevel == 1)
@@ -26,7 +26,7 @@ AsyncSerialServer::~AsyncSerialServer()
         std::cout << "Killing Thread!" << std::endl;
 
     pthread_kill(this->modemStatusManagmentWorkerThread.native_handle(), SIGTERM);
-    
+
     if (this->portInformation.debugLevel == 1)
         std::cout << "Thread killed!" << std::endl;
 
@@ -53,14 +53,14 @@ void AsyncSerialServer::startWrite(size_t length)
 void AsyncSerialServer::manageModemStatus(unsigned int signal, unsigned int recievedSignal)
 {
     this->modemStatus = getModemStatus();
-    
+
     if (this->modemStatus != 0)
-    {   
+    {
         setModemStatus(signal, this->modemStatus & recievedSignal);
     }
     else
         if (this->portInformation.debugLevel == 1)
-            std::cout << "Skipped signal" << std::endl;
+            std::cout << "manageModemStatus: the same" << std::endl;
 }
 
 void AsyncSerialServer::handleRead(const boost::system::error_code& error, size_t length)
@@ -98,7 +98,7 @@ void AsyncSerialServer::printInformation(const char* messageType, const boost::s
                 case 0:
                     std::cout << "[\\0]";
                     break;
-                
+
                 case 10:
                     std::cout << "[\\n]";
                     break;
@@ -106,11 +106,11 @@ void AsyncSerialServer::printInformation(const char* messageType, const boost::s
                 case 13:
                     std::cout << "[\\r]";
                     break;
-                
+
                 case 9:
                     std::cout << "[\\t]";
                     break;
-                
+
                 case 11:
                     std::cout << "[\\v]";
                     break;
@@ -118,11 +118,11 @@ void AsyncSerialServer::printInformation(const char* messageType, const boost::s
                 case 8:
                     std::cout << "[\\b]";
                     break;
-                
+
                 case 12:
                     std::cout << "[\\f]";
                     break;
-                
+
                 case 7:
                     std::cout << "[\\a]";
                     break;
@@ -140,7 +140,7 @@ void AsyncSerialServer::printInformation(const char* messageType, const boost::s
     }
     else
     {
-        std::cerr << "[Error]: Handle " << messageType << "! | " << "Error: " << error << 
+        std::cerr << "[Error]: Handle " << messageType << "! | " << "Error: " << error <<
             " | modemData length: " << length << " - Must be " << BUFFER_SIZE << " bytes!" << std::endl;
         throw error;
     }
