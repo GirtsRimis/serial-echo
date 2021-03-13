@@ -161,11 +161,9 @@ void AsyncSerialServer::modemStatusManagementThread()
         {
             returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_CTS|TIOCM_DSR );
 
-            std::cout << "Change pin" << std::endl;
-
-            manageModemStatus(TIOCM_RTS|TIOCM_DTR, TIOCM_CTS|TIOCM_DSR);
-
-            if (returnCode < 0)
+            if (returnCode >= 0)
+                manageModemStatus(TIOCM_RTS|TIOCM_DTR, TIOCM_CTS|TIOCM_DSR);
+            else
                 throw boost::system::system_error(returnCode, boost::system::system_category(), "Failed to TIOCMIWAIT");
         }
 
