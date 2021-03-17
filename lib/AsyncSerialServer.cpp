@@ -50,18 +50,18 @@ void AsyncSerialServer::startWrite(size_t length)
         boost::asio::placeholders::bytes_transferred));
 }
 
-void AsyncSerialServer::manageModemStatus(unsigned int signal, unsigned int recievedSignal)
-{
-    this->modemStatus = getModemStatus();
+// void AsyncSerialServer::manageModemStatus(unsigned int signal, unsigned int recievedSignal)
+// {
+//     this->modemStatus = getModemStatus();
 
-    if (this->modemStatus != 0)
-    {
-        setModemStatus(signal, this->modemStatus & recievedSignal);
-    }
-    else
-        if (this->portInformation.debugLevel == 1)
-            std::cout << "manageModemStatus: the same" << std::endl;
-}
+//     if (this->modemStatus != 0)
+//     {
+//         setModemStatus(signal, this->modemStatus & recievedSignal);
+//     }
+//     else
+//         if (this->portInformation.debugLevel == 1)
+//             std::cout << "manageModemStatus: the same" << std::endl;
+// }
 
 void AsyncSerialServer::handleRead(const boost::system::error_code& error, size_t length)
 {
@@ -151,20 +151,30 @@ void AsyncSerialServer::modemStatusManagementThread()
     try
     {
         int returnCode = 0;
+        int modemData = 0;
+        int prevModemData = 0;
 
         if (this->portInformation.debugLevel == 1)
             std::cout << "Thread started" << std::endl;
 
-        manageModemStatus(TIOCM_RTS|TIOCM_DTR, 0);
-
         while (returnCode >= 0)
         {
+            returnCode = ioctl(this->fd, TIOCMGET, &modemData);    
+
+            if ((prevModemData & TIOCM_CTS) != (modemData & TIOCM_CTS))
+                setModemStatus(TIOCM_RTS, modemData & TIOCM_CTS);
+            
+            if ((prevModemData & TIOCM_DSR) != (modemData & TIOCM_DSR))
+                setModemStatus(TIOCM_DTR, modemData & TIOCM_DSR);
+            
+            prevModemData = modemData;
             returnCode = ioctl( this->fd, TIOCMIWAIT, TIOCM_CTS|TIOCM_DSR );
 
-            if (returnCode >= 0)
-                manageModemStatus(TIOCM_RTS|TIOCM_DTR, TIOCM_CTS|TIOCM_DSR);
-            else
-                throw boost::system::system_error(returnCode, boost::system::system_category(), "Failed to TIOCMIWAIT");
+            // if (returnCode < 0)
+            //     throw boost::system::system_error(returnCode, boost::system::system_category(), "Failed to TIOCMIWAIT");
+            
+            // if (returnCode < 0)
+            //     throw boost::system::system_error(returnCode, boost::system::system_category(), "Failed to TIOCMGET");         
         }
 
         if (this->portInformation.debugLevel == 1)
